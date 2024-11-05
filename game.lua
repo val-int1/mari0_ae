@@ -3748,52 +3748,107 @@ function drawHUD()
 		love.graphics.translate(0, yoffset*scale)
 	end
 
+	local plname = playername
+	if players > 1 and plname == "" then
+		plname = TEXT["points"]
+	else
+		if plname == "" and mariocharacter[1] and characters.data[mariocharacter[1]] then
+			plname = characters.data[mariocharacter[1]].name
+		end
+		if hudplayerlives then
+			local lives
+			if gamestate == "game" then
+				lives = mariolives[1]
+			else
+				lives = mariolivecount
+			end
+			if lives == false then lives = "inf" end
+			plname = plname .. " *" .. lives
+		end
+	end
+
 	local cy = 32 --collectable coin ui y
 		
 	if hudsimple then
 		cy = 22
 
 		--properprintfunc(playername .. " * " .. tostring(mariolives[1]), 16*scale, 8*scale)
-		love.graphics.setColor(255, 255, 255)
-		love.graphics.draw(coinanimationimage, coinanimationquads[spriteset or 1][coinframe or 1], 16*scale, 12*scale, 0, scale, scale)
-		love.graphics.setColor(hudtextcolor)
-		properprintfunc("*" .. addzeros((mariocoincount or 0), 2), 24*scale, 12*scale)
+		local hudy = 12
+		if hudplayername then
+			hudy = 16
+		end
+		if hudplayername then
+			properprintfunc(plname, 14*scale, 8*scale)
+		end
+		if hudcoins then
+			love.graphics.setColor(255, 255, 255)
+			love.graphics.draw(coinanimationimage, coinanimationquads[spriteset or 1][coinframe or 1], 16*scale, hudy*scale, 0, scale, scale)
+			love.graphics.setColor(hudtextcolor)
+			properprintfunc("*" .. addzeros((mariocoincount or 0), 2), 24*scale, hudy*scale)
+		end
 		
-		properprintfunc(addzeros((marioscore or 0), 9), (width*16-56-(9*8))*scale, 12*scale)
-		
-		love.graphics.draw(hudclockimg, hudclockquad[hudoutline], (width*16-49)*scale, 11*scale, 0, scale, scale)
-		if gamestate == "game" then
-			properprintfunc(addzeros(math.ceil(mariotime), 3), (width*16-40)*scale, 12*scale)
-		else
-			properprintfunc("000", (width*16-40)*scale, 12*scale)
+		hudy = 12
+		if hudworld then
+			local world = marioworld
+			if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
+				world = alphabet:sub(world-9, world-9)
+			elseif world == "M" then
+				world = " "
+			end
+			local s = TEXT["world"] .. " " .. (world or 1) .. "-" .. (mariolevel or 1)
+			properprintfunc(s, ((width-1)*16-(string.len(s)*8))*scale, 8*scale)
+			hudy = 16
+		end
+
+		if hudpoints then
+			properprintfunc(addzeros((marioscore or 0), 9), (width*16-56-(9*8))*scale, hudy*scale)
+		end
+
+		if hudtime then
+			love.graphics.draw(hudclockimg, hudclockquad[hudoutline], (width*16-49)*scale, (hudy-1)*scale, 0, scale, scale)
+			if gamestate == "game" then
+				properprintfunc(addzeros(math.ceil(mariotime), 3), (width*16-40)*scale, hudy*scale)
+			else
+				properprintfunc("000", (width*16-40)*scale, hudy*scale)
+			end
 		end
 	else
-		properprintfunc(playername, uispace*.5 - 24*scale, 8*scale)
-		properprintfunc(addzeros((marioscore or 0), 6), uispace*0.5-24*scale, 16*scale)
-		
-		love.graphics.setColor(255, 255, 255)
-		love.graphics.draw(coinanimationimage, coinanimationquads[spriteset or 1][coinframe or 1], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
-		love.graphics.setColor(hudtextcolor)
-		properprintfunc("*" .. addzeros((mariocoincount or 0), 2), uispace*1.5-8*scale, 16*scale)
-		
-		properprintfunc(TEXT["world"], uispace*2.5 - 20*scale, 8*scale)
-		local world = marioworld
-		if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
-			world = alphabet:sub(world-9, world-9)
-		elseif world == "M" then
-			world = " "
+		if hudplayername then
+			properprintfunc(plname, uispace*.5 - 24*scale, 8*scale)
 		end
-		properprintfunc((world or 1) .. "-" .. (mariolevel or 1), uispace*2.5 - 12*scale, 16*scale)
+		if hudpoints then
+			properprintfunc(addzeros((marioscore or 0), 6), uispace*0.5-24*scale, 16*scale)
+		end
 		
-		properprintfunc(TEXT["time"], uispace*3.5 - 16*scale, 8*scale)
-		if editormode then
-			if editorstate == "linktool" then
-				properprintfunc(TEXT["link"], uispace*3.5 - 16*scale, 16*scale)
-			else
-				properprintfunc(TEXT["edit"], uispace*3.5 - 16*scale, 16*scale)
+		if hudcoins then
+			love.graphics.setColor(255, 255, 255)
+			love.graphics.draw(coinanimationimage, coinanimationquads[spriteset or 1][coinframe or 1], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
+			love.graphics.setColor(hudtextcolor)
+			properprintfunc("*" .. addzeros((mariocoincount or 0), 2), uispace*1.5-8*scale, 16*scale)
+		end
+		
+		if hudworld then
+			properprintfunc(TEXT["world"], uispace*2.5 - 20*scale, 8*scale)
+			local world = marioworld
+			if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
+				world = alphabet:sub(world-9, world-9)
+			elseif world == "M" then
+				world = " "
 			end
-		elseif gamestate == "game" then
-			properprintfunc(addzeros(math.ceil(mariotime), 3), uispace*3.5-8*scale, 16*scale)
+			properprintfunc((world or 1) .. "-" .. (mariolevel or 1), uispace*2.5 - 12*scale, 16*scale)
+		end
+		
+		if hudtime then
+			properprintfunc(TEXT["time"], uispace*3.5 - 16*scale, 8*scale)
+			if editormode then
+				if editorstate == "linktool" then
+					properprintfunc(TEXT["link"], uispace*3.5 - 16*scale, 16*scale)
+				else
+					properprintfunc(TEXT["edit"], uispace*3.5 - 16*scale, 16*scale)
+				end
+			elseif gamestate == "game" then
+				properprintfunc(addzeros(math.ceil(mariotime), 3), uispace*3.5-8*scale, 16*scale)
+			end
 		end
 	end
 

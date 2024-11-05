@@ -1,118 +1,120 @@
 animation = class:new()
 
 --[[ TRIGGERS:
-mapload								when the map is loaded
-timepassed:time						when <time> ms have passed
-playerxgreater:x					when a player's x is greater than x
-playerxless:x						when a player's x is less than x
-playerygreater:x					when a player's y is greater than y
-playeryless:x						when a player's y is less than y
-animationtrigger:i					when animationtrigger with ID i is triggered
-mariotimeless:i						when mariotime is less than i
-buttonpressed:button				when player presses button
-buttonreleased:button				when player releases button
-pswitchtrigger:on/off				when p switch is pressed or done
-switchblocktrigger:i				when switch block is used
-playerlandsonground:i				when player lands on ground
-playerhurt:i						when player gets hurt
-whennumber:i:>/</=:v				when a variable turns something
+mapload									when the map is loaded
+timepassed:time							when <time> ms have passed
+playerxgreater:x						when a player's x is greater than x
+playerxless:x							when a player's x is less than x
+playerygreater:x						when a player's y is greater than y
+playeryless:x							when a player's y is less than y
+animationtrigger:i						when animationtrigger with ID i is triggered
+mariotimeless:i							when mariotime is less than i
+buttonpressed:button					when player presses button
+buttonreleased:button					when player releases button
+pswitchtrigger:on/off					when p switch is pressed or done
+switchblocktrigger:i					when switch block is used
+playerlandsonground:i					when player lands on ground
+playerhurt:i							when player gets hurt
+whennumber:i:>/</=:v					when a variable turns something
 --]]
 
 --[[ CONDITIONS:
-noprevsublevel					doesn't if the level was changed from another sublevel (Mario goes through pipe, lands in 1-1_1, prevsublevel was _0, no trigger.)
-worldequals:i					only triggers if current world is i
-levelequals:i					only triggers if current level is i
-sublevelequals:i				only triggers if current sublevel is i
-requirecoins:i					requires i coins to trigger (will not remove coins)
+noprevsublevel							doesn't if the level was changed from another sublevel (Mario goes through pipe, lands in 1-1_1, prevsublevel was _0, no trigger.)
+worldequals:i							only triggers if current world is i
+levelequals:i							only triggers if current level is i
+sublevelequals:i						only triggers if current sublevel is i
+requirecoins:i							requires i coins to trigger (will not remove coins)
 
-playersize[:player]:size			requires a player to be size
-requirecollectables:i				requires i collectables to trigger (will not remove coins)
-requirepoints:i					requires i points
-buttonhelddown:button				only if button is held down
-requirekeys[:player]:i				requires i keys
-ifnumber:i:>/</=:v				if a variable is equal/greater than something
-ifcoins:>/</=:v					if coin count is equal/greater than v
-ifcollectables:>/</=:v:i			if collectable count of a type is equal/greater than v
-ifpoints:>/</=:v				if points is equal/greater than v
-requireplayers:i				requires i players to trigger
+playersize[:player]:size				requires a player to be size
+requirecollectables:i					requires i collectables to trigger (will not remove coins)
+requirepoints:i							requires i points
+buttonhelddown:button					only if button is held down
+requirekeys[:player]:i					requires i keys
+ifnumber:i:>/</=:v						if a variable is equal/greater than something
+ifcoins:>/</=:v							if coin count is equal/greater than v
+ifcollectables:>/</=:v:i				if collectable count of a type is equal/greater than v
+ifpoints:>/</=:v						if points is equal/greater than v
+requireplayers:i						requires i players to trigger
 --]]
 
 --[[ ACTIONS:
-disablecontrols[:player]			disables player input and hides the portal line
-enablecontrols[:player]				enables player input and shows portal line
-sleep:time							waits for <time> secs
-setcamerax:x						sets the camera xscroll to <x>
-setcameray:y						sets the camera yscroll to <y>
-pancameratox:x:time					pans the camera horizontally over <time> secs to <x>
-pancameratoy:y:time					pans the camera vertically over <time> secs to <y>
-pancamera:x:y:time					pans the camera relative to current position over <time>
-disablescroll						disables autoscroll
-enablescroll						enables autoscroll
-setx[:player]:x						sets the x-position of player(s)
-sety[:player]:y						sets the y-position of player(s)
-playerwalk[:player]:direction:speed	makes players walk into the given <direction>
-playeranimationstop[:player]		stops whatever animation the player is in
-disableanimation					disables this animation from triggering
-enableanimation						enables this animation to trigger
-playerjump[:player]					makes players jump (as high as possible)
-playerstopjump[:player]				makes players abort the jump (for small jumps)
-dialogbox:text[:speaker][:color]	creates a dialogbox with <text> and <speaker> and <color> (from textcolors in variables.lua)
-removedialogbox						removes the dialogbox
-playmusic:i							plays music <i>
-screenshake:power					makes the screen shake with <power>
-addcoins:coins						adds <coins> coins
-addpoints:points					adds <points> points
-changebackgroundcolor:r:g:b			changes background color to rgb
-killplayer[:player]					hurts player(s)
-changetime:time						changes the time left to <time>
-loadlevel:world:level:sublevel:exit	starts level <world>-<level>_<sublevel> pipeexitid:<exit>
-nextlevel							goes to next level
-disableplayeraim:player				disables mouse or joystick aiming for <player>
-enableplayeraim:player				enables mouse or joystick aiming for <player>
-closeportals[:player]				closes portals for <player>
-makeplayerlook:player:angle			makes players aim in direction of <angle>, starting at right and going CCW, should probably be used in connection with "disableplayeraim" because it's just once
-makeplayerfireportal:player:i		makes a player shoot one of their portal
-enableportalgun:player				enable portal gun of player
-disableportalgun:player				disable portal gun of player
-repeat								repeats animation
-instantkillplayer[:player]			kills player(s)
-disablejumping						disable jumping
-enablejumping						enables jumping
+disablecontrols[:player]				disables player input and hides the portal line
+enablecontrols[:player]					enables player input and shows portal line
+sleep:time								waits for <time> secs
+setcamerax:x							sets the camera xscroll to <x>
+setcameray:y							sets the camera yscroll to <y>
+pancameratox:x:time						pans the camera horizontally over <time> secs to <x>
+pancameratoy:y:time						pans the camera vertically over <time> secs to <y>
+pancamera:x:y:time						pans the camera relative to current position over <time>
+disablescroll							disables autoscroll
+enablescroll							enables autoscroll
+setx[:player]:x							sets the x-position of player(s)
+sety[:player]:y							sets the y-position of player(s)
+playerwalk[:player]:direction:speed		makes players walk into the given <direction>
+playeranimationstop[:player]			stops whatever animation the player is in
+disableanimation						disables this animation from triggering
+enableanimation							enables this animation to trigger
+playerjump[:player]						makes players jump (as high as possible)
+playerstopjump[:player]					makes players abort the jump (for small jumps)
+dialogbox:text[:speaker][:color]		creates a dialogbox with <text> and <speaker> and <color> (from textcolors in variables.lua)
+removedialogbox							removes the dialogbox
+playmusic:i								plays music <i>
+screenshake:power						makes the screen shake with <power>
+addcoins:coins							adds <coins> coins
+addpoints:points						adds <points> points
+changebackgroundcolor:r:g:b				changes background color to rgb
+killplayer[:player]						hurts player(s)
+changetime:time							changes the time left to <time>
+loadlevel:world:level:sublevel:exit		starts level <world>-<level>_<sublevel> pipeexitid:<exit>
+nextlevel								goes to next level
+disableplayeraim:player					disables mouse or joystick aiming for <player>
+enableplayeraim:player					enables mouse or joystick aiming for <player>
+closeportals[:player]					closes portals for <player>
+makeplayerlook:player:angle				makes players aim in direction of <angle>, starting at right and going CCW, should probably be used in connection with "disableplayeraim" because it's just once
+makeplayerfireportal:player:i			makes a player shoot one of their portal
+enableportalgun:player					enable portal gun of player
+disableportalgun:player					disable portal gun of player
+repeat									repeats animation
+instantkillplayer[:player]				kills player(s)
+disablejumping							disable jumping
+enablejumping							enables jumping
 
-autosave							saves mappack progress
-changebackground:background			changes background
-changeforeground:background	 	    changes foreground
-removecoins:amount					removes coins
-removepoints:points					removes <points> points
-removecollectables:amount:i			removes collectables
-resetcollectables:amount:i			resets collected collectables
-disablehorscroll					disables horizontal scrolling
-nextlevel							goes to next level
-setautoscrolling					sets autoscrolling to <speedx> and <speedy>
-stopautoscrolling					stops autoscrolling
-playsound							plays <sound>
-stopsound							stops <sound>
-stopsounds							stops all sounds
-togglewind							toggle wind
-togglelightsout						toggle lights out
-togglelowgravity					toggle low gravity
-animationoutput:i:signal			triggers animationoutput with ID i
-transformenemy:i					transforms enemy with "transformtrigger": "animation" and "transformanimation": i
-killallenemies						kills all enemies
-triggeranimation:i					preforms animation trigger
-addkeys[:player]:amount				adds keys
-removekeys[:player]:amount			removes keys
-setnumber:name:=/+:v				change number by something
-resetnumbers						resets all animation numbers
-launchplayer[:player]:x:y			launches player at defined speed
-addtime:time						adds <seconds> time
-removetime:time						removes <seconds> time
-settime:time						sets time
-setplayerlight:blocks				sets player's light in lights out mode
-waitforinput                        waits until a spesific/any player presses a button
-waitfrotrigger                      waits until a spesific animation is triggered
-makeinvincible:i					makes player invincible/give star for i or default seconds
-changeswitchstate:i					trigger switchblocks
+autosave								saves mappack progress
+changebackground:background				changes background
+changeforeground:background	 	    	changes foreground
+removecoins:amount						removes coins
+removepoints:points						removes <points> points
+removecollectables:amount:i				removes collectables
+resetcollectables:amount:i				resets collected collectables
+disablehorscroll						disables horizontal scrolling
+nextlevel								goes to next level
+setautoscrolling						sets autoscrolling to <speedx> and <speedy>
+stopautoscrolling						stops autoscrolling
+playsound								plays <sound>
+stopsound								stops <sound>
+stopsounds								stops all sounds
+togglewind								toggle wind
+togglelightsout							toggle lights out
+togglelowgravity						toggle low gravity
+animationoutput:i:signal				triggers animationoutput with ID i
+transformenemy:i						transforms enemy with "transformtrigger": "animation" and "transformanimation": i
+killallenemies							kills all enemies
+triggeranimation:i						preforms animation trigger
+addkeys[:player]:amount					adds keys
+removekeys[:player]:amount				removes keys
+setnumber:name:=/+:v					change number by something
+resetnumbers							resets all animation numbers
+launchplayer[:player]:x:y				launches player at defined speed
+addtime:time							adds <seconds> time
+removetime:time							removes <seconds> time
+settime:time							sets time
+setplayerlight:blocks					sets player's light in lights out mode
+waitforinput							waits until a spesific/any player presses a button
+waitfrotrigger							waits until a spesific animation is triggered
+makeinvincible:i						makes player invincible/give star for i or default seconds
+changeswitchstate:i						trigger switchblocks
+
+changehudelement:elem:on/off/toggle		changes/toggles hud element <elem> (player name, player lives, score, coins, world, time, compact, outline, visibility)
 --]]
 
 function animation:init(path, name)
@@ -1043,6 +1045,13 @@ function animation:update(dt)
 			elseif v[1] == "repeat" then
 				self.currentaction = 1
 				break
+			elseif v[1] == "changehudelement" and tablecontains(hudelemnames, v[2]) then
+				local varname = "hud" .. v[2]
+				if v[3] == "toggle" then
+					_G[varname] = not _G[varname]
+				else
+					_G[varname] = v[3] == "on"
+				end
 			end
 			
 			self.currentaction = self.currentaction + 1

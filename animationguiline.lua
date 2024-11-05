@@ -1954,6 +1954,25 @@ table.insert(toenter, {name = "changeswitchstate",
 	}
 })
 
+table.insert(toenter, {name = "changehudelement",
+	t = {
+		t="action",
+		nicename="change hud element:",
+		entries={
+			{
+				t="hudelements",
+			},
+			{
+				t="text",
+				value="to"
+			},
+			{
+				t="signalselection",
+			},
+		}
+	}
+})
+
 --SORT ALPHABETICALLY (I didn't even know you could greater/less compare strings.)
 table.sort(toenter, function(a, b) return a.t.nicename < b.t.nicename end)
 
@@ -2160,12 +2179,18 @@ function animationguiline:init(tabl, t2)
 					dropwidth = 6
 					args = {"both","none","1 only","2 only","gel"}
 					displayargs = {"both","none","1 only","2 only","gel"}
-				
+
 				elseif v.t == "notifyplayer" then
 					dropdown = true
 					dropwidth = 24
 					args = {true, false}
 					displayargs = {"notify the player", "don't notify the player"}
+
+				elseif v.t == "hudelements" then
+					dropdown = true
+					dropwidth = 12
+					args = hudelemnames
+					displayargs = {"player name", "player lives", "points", "coins", "world", "time", "compact", "outline", "visibility"}
 				end
 				
 				if dropdown then

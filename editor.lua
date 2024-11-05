@@ -362,6 +362,13 @@ function editor_load(player_position) --{x, y, xscroll, yscroll}
 	textcolorp = hudtextcolorname
 	textstate = "hud"
 	
+	if oldhudstates then
+		for i, v in pairs(oldhudstates) do
+			_G["hud" .. i] = v
+		end
+		oldhudstates = nil
+	end
+
 	--custom text
 	guielements["savecustomtext"] = guielement:new("button", 10, 201, "save text", savecustomtext, 2)
 	guielements["savecustomtext"].bordercolor = {255, 0, 0}
@@ -392,11 +399,38 @@ function editor_load(player_position) --{x, y, xscroll, yscroll}
 	guielements["hudcolor"].coloredtext = true
 	--guielements["hudcolor<"] = guielement:new("button", 10, 83, "{", hudtextcolorleft, 1)
 	--guielements["hudcolor>"] = guielement:new("button", guielements["hudcolor<"].x+guielements["hudcolor<"].width+utf8.len(TEXT["color"])*8+7, 83, "}", hudtextcolorright, 1)
+	guielements["hudplayernamecheckbox"] = guielement:new("checkbox", 10, 56, togglehudplayername, hudplayername, TEXT["player name"])
+	guielements["hudplayerlivescheckbox"] = guielement:new("checkbox", 23 + utf8.len(TEXT["player name"])*8, 56, togglehudplayerlives, hudplayerlives, TEXT["show lives"])
+	guielements["hudplayerlivescheckbox"].active = hudplayername
 	guielements["hudworldlettercheckbox"] = guielement:new("checkbox", 10, 98, togglehudworldletter, hudworldletter, TEXT["use letters for worlds over 9"])
-	guielements["hudvisiblecheckbox"] = guielement:new("checkbox", 10, 109, togglehudvisible, hudvisible, TEXT["hud visible"])
-	guielements["hudoutlinecheckbox"] = guielement:new("checkbox", 10, 120, togglehudoutline, hudoutline, TEXT["hud outline"])
-	guielements["hudsimplecheckbox"] = guielement:new("checkbox", 10, 131, togglehudsimple, hudsimple, TEXT["simple hud"])
+	--guielements["hudvisiblecheckbox"] = guielement:new("checkbox", 10, 109, togglehudvisible, hudvisible, TEXT["hud visible"])
+	guielements["hudoutlinecheckbox"] = guielement:new("checkbox", 10, 109, togglehudoutline, hudoutline, TEXT["hud outline"])
+	guielements["hudsimplecheckbox"] = guielement:new("checkbox", 10, 120, togglehudsimple, hudsimple, TEXT["compact hud"])
+	guielements["hudpointscheckbox"] = guielement:new("checkbox", 10, 131, togglehudpoints, hudpoints, TEXT["points on hud"])
+	guielements["hudcoinscheckbox"] = guielement:new("checkbox", 10, 142, togglehudcoins, hudcoins, TEXT["coins on hud"])
+	guielements["hudworldcheckbox"] = guielement:new("checkbox", 10, 153, togglehudworld, hudworld, TEXT["world on hud"])
+	guielements["hudtimecheckbox"] = guielement:new("checkbox", 10, 164, togglehudtime, hudtime, TEXT["time on hud"])
 	guielements["editlevelscreentext"] = guielement:new("input", 10, 81, 40, nil, levelscreentext[marioworld .. "-" .. mariolevel] or "", 45)
+	hudtemplatebuttons = {
+		guielement:new("button", 0, 0, TEXT["simple hud"], sethudtosimple, 1),
+		guielement:new("button", 0, 0, TEXT["classic hud"], sethudtoclassic, 1),
+		guielement:new("button", 0, 0, TEXT["disable hud"], sethudtooff, 1),
+	}
+	local btnw = 0
+	local btny = 203
+	for _, v in pairs(hudtemplatebuttons) do
+		if v.width > btnw then btnw = v.width end
+	end
+	local btnx = (width*16) - (15 + btnw)
+	for i, v in pairs(hudtemplatebuttons) do
+		v.width = btnw
+		v.x = btnx
+		v.y = btny
+		btny = btny - 15
+	end
+	guielements["simplehudbutton"] = hudtemplatebuttons[1]
+	guielements["classichudbutton"] = hudtemplatebuttons[2]
+	guielements["disablehudbutton"] = hudtemplatebuttons[3]
 	
 	--animationS
 	guielements["animationsscrollbarver"] = guielement:new("scrollbar", animationguiarea[1]-10, animationguiarea[2], animationguiarea[4]-animationguiarea[2], 10, 40, 0, "ver", nil, nil, nil, nil, true)
@@ -2984,17 +3018,30 @@ function editor_draw()
 					guielements["endingcolor"]:draw()
 				elseif textstate == "hud" then
 					love.graphics.setColor(255, 255, 255)
-					properprintF(TEXT["player name"], 11*scale, 57*scale)
+					--properprintF(TEXT["player name"], 11*scale, 57*scale)
+					guielements["hudplayernamecheckbox"]:draw()
+					if hudplayername then
+						guielements["hudplayerlivescheckbox"]:draw()
+					end
 					guielements["editplayername"]:draw()
+					properprintF(TEXT["(set to mario for char. name)"], 110*scale, 70*scale)
 					--love.graphics.setColor(textcolors[textcolorp])
 					--properprintF(TEXT["color"], 23*scale, 86*scale)
 					--guielements["hudcolor<"]:draw()
 					--guielements["hudcolor>"]:draw()
 					guielements["hudworldlettercheckbox"]:draw()
-					guielements["hudvisiblecheckbox"]:draw()
+					--guielements["hudvisiblecheckbox"]:draw()
 					guielements["hudoutlinecheckbox"]:draw()
 					guielements["hudsimplecheckbox"]:draw()
+					guielements["hudpointscheckbox"]:draw()
+					guielements["hudcoinscheckbox"]:draw()
+					guielements["hudworldcheckbox"]:draw()
+					guielements["hudtimecheckbox"]:draw()
 					guielements["hudcolor"]:draw()
+					properprintF(TEXT["hud templates:"], ((width*16) - (10 + utf8.len(TEXT["hud templates:"])*8))*scale, (193 - (#hudtemplatebuttons-1)*15)*scale)
+					for _, v in pairs(hudtemplatebuttons) do
+						v:draw()
+					end
 				elseif textstate == "castle" then
 					love.graphics.setColor(255, 255, 255)
 					properprintF(TEXT["toad"], 11*scale, 57*scale)
@@ -3610,14 +3657,23 @@ function texttabtab(t)
 	
 	if t == "hud" then
 		guielements["hudtexttab"].textcolor = {255, 255, 255}
+		guielements["hudplayernamecheckbox"].active = true
+		guielements["hudplayerlivescheckbox"].active = hudplayername
 		guielements["editplayername"].active = true
 		guielements["hudcolor"].active = true
 		--guielements["hudcolor<"].active = true
 		--guielements["hudcolor>"].active = true
 		guielements["hudworldlettercheckbox"].active = true
-		guielements["hudvisiblecheckbox"].active = true
+		--guielements["hudvisiblecheckbox"].active = true
 		guielements["hudoutlinecheckbox"].active = true
 		guielements["hudsimplecheckbox"].active = true
+		guielements["hudpointscheckbox"].active = true
+		guielements["hudcoinscheckbox"].active = true
+		guielements["hudworldcheckbox"].active = true
+		guielements["hudtimecheckbox"].active = true
+		for _, v in pairs(hudtemplatebuttons) do
+			v.active = true
+		end
 	elseif t == "ending" then
 		guielements["endingtexttab"].textcolor = {255, 255, 255}
 		guielements["editendingtext1"].active = true
@@ -7159,6 +7215,84 @@ function togglehudsimple(var)
 	end
 	guielements["hudsimplecheckbox"].var = hudsimple
 end
+function togglehudplayername(var)
+	if var ~= nil then
+		hudplayername = var
+	else
+		hudplayername = not hudplayername
+	end
+	guielements["hudplayernamecheckbox"].var = hudplayername
+	guielements["hudplayerlivescheckbox"].active = hudplayername
+end
+function togglehudplayerlives(var)
+	if var ~= nil then
+		hudplayerlives = var
+	else
+		hudplayerlives = not hudplayerlives
+	end
+	guielements["hudplayerlivescheckbox"].var = hudplayerlives
+end
+function togglehudpoints(var)
+	if var ~= nil then
+		hudpoints = var
+	else
+		hudpoints = not hudpoints
+	end
+	guielements["hudpointscheckbox"].var = hudpoints
+end
+function togglehudcoins(var)
+	if var ~= nil then
+		hudcoins = var
+	else
+		hudcoins = not hudcoins
+	end
+	guielements["hudcoinscheckbox"].var = hudcoins
+end
+function togglehudworld(var)
+	if var ~= nil then
+		hudworld = var
+	else
+		hudworld = not hudworld
+	end
+	guielements["hudworldcheckbox"].var = hudworld
+end
+function togglehudtime(var)
+	if var ~= nil then
+		hudtime = var
+	else
+		hudtime = not hudtime
+	end
+	guielements["hudtimecheckbox"].var = hudtime
+end
+
+function sethudtoclassic()
+	togglehudsimple(false)
+	togglehudplayername(true)
+	togglehudplayerlives(false)
+	togglehudpoints(true)
+	togglehudcoins(true)
+	togglehudworld(true)
+	togglehudtime(true)
+end
+
+function sethudtosimple()
+	togglehudsimple(true)
+	togglehudplayername(false)
+	togglehudplayerlives(false)
+	togglehudpoints(true)
+	togglehudcoins(true)
+	togglehudworld(false)
+	togglehudtime(true)
+end
+
+function sethudtooff()
+	togglehudplayername(false)
+	togglehudplayerlives(false)
+	togglehudpoints(false)
+	togglehudcoins(false)
+	togglehudworld(false)
+	togglehudtime(false)
+end
 
 function changebackground(var)
 	levelmodified = true
@@ -7575,6 +7709,14 @@ end
 
 function test_level(x, y)
 	createeditorsavedata("test")
+
+	-- store the current state of the hud elements to restore them in case they are changed during testing
+	oldhudstates = {}
+	for _, v in pairs(hudelemnames) do
+		if v ~= "visible" then
+			oldhudstates[v] = _G["hud" .. v]
+		end
+	end
 	
 	local targetxscroll, targetyscroll = xscroll, yscroll
 	if levelmodified and onlysaveiflevelmodified then

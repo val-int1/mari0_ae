@@ -97,6 +97,8 @@ function menu_load()
 	currentcustomplayer = false
 	
 	skipupdate = true
+
+	loadmappacksettings()
 end
 
 function menu_update(dt)
@@ -175,6 +177,7 @@ function menu_update(dt)
 					mappackdescription[mappacklistthreadn] = v[4]
 					mappackbackground[mappacklistthreadn] = v[5]
 					mappackdropshadow[mappacklistthreadn] = v[7]
+					mappacklives[mappacklistthreadn] = v[8]
 
 					mappacklistthreadn = mappacklistthreadn + 1
 					if mappacklistthreadn <= #mappacklist-1 then
@@ -525,67 +528,35 @@ function menu_draw()
 		elseif selection == 4 then
 			love.graphics.draw(menuselectimg, (129-(math.ceil((utf8.len(TEXT["options"]))/2)*8))*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
 		end
-		
-		local start = 9
-		if (custombackground or customforeground) and not hudoutline then
-			start = 1
+			
+		if continueavailable then
+			if mouseonselecthold and mouseonselect == 0 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end
+			properprintfunc(TEXT["continue game"], (143-(math.ceil(utf8.len(TEXT["continue game"])/2)*8))*scale, 122*scale)
 		end
-		
-		for i = start, 9 do
-			local tx, ty = -scale, scale
-			love.graphics.setColor(0, 0, 0)
-			if i == 2 then
-				tx, ty = scale, scale
-			elseif i == 3 then
-				tx, ty = -scale, -scale
-			elseif i == 4 then
-				tx, ty = scale, -scale
-			elseif i == 5 then
-				tx, ty = 0, -scale
-			elseif i == 6 then
-				tx, ty = 0, scale
-			elseif i == 7 then
-				tx, ty = scale, 0
-			elseif i == 8 then
-				tx, ty = -scale, 0
-			elseif i == 9 then
-				tx, ty = 0, 0
+
+		if mouseonselecthold and mouseonselect == 1 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end
+		properprintfunc(TEXT["player game"], (143-(math.ceil((utf8.len(TEXT["player game"])+2)/2)*8)+16)*scale, 138*scale)
+
+		properprintfunc(players, (143-(math.ceil((utf8.len(TEXT["player game"])+2)/2)*8))*scale, 138*scale)
+		if (mouseonselecthold and mouseonselect == 2) or nofunallowed then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end
+		properprintfunc(TEXT["level editor"], (143-(math.ceil(utf8.len(TEXT["level editor"])/2)*8))*scale, 154*scale)
+
+		if mouseonselecthold and mouseonselect == 3 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end
+		properprintfunc(TEXT["select mappack"], (143-(math.ceil(utf8.len(TEXT["select mappack"])/2)*8))*scale, 170*scale)
+
+		if mouseonselecthold and mouseonselect == 4 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end
+		properprintfunc(TEXT["options"], (143-(math.ceil(utf8.len(TEXT["options"])/2)*8))*scale, 186*scale)
+
+		love.graphics.setColor(255, 255, 255)
+
+		--if not (not disabletips and menutipoffset > -width*16) then
+			if not (custombackground or customforeground) or hudoutline then
+				love.graphics.setColor(0, 0, 0)
+				properprint("mod by alesan99", (width*16-#("mod by alesan99")*8-7)*scale, 209*scale) --a little less intrusive
 				love.graphics.setColor(255, 255, 255)
 			end
-			
-			love.graphics.translate(tx, ty)
-			
-			if continueavailable then
-				if i == 9 then if mouseonselecthold and mouseonselect == 0 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end end
-				properprintfunc(TEXT["continue game"], (143-(math.ceil(utf8.len(TEXT["continue game"])/2)*8))*scale, 122*scale)
-			end
-			
-			if i == 9 then if mouseonselecthold and mouseonselect == 1 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end end
-			properprintfunc(TEXT["player game"], (143-(math.ceil((utf8.len(TEXT["player game"])+2)/2)*8)+16)*scale, 138*scale)
-			
-			properprintfunc(players, (143-(math.ceil((utf8.len(TEXT["player game"])+2)/2)*8))*scale, 138*scale)
-			if i == 9 then if (mouseonselecthold and mouseonselect == 2) or nofunallowed then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end end
-			properprintfunc(TEXT["level editor"], (143-(math.ceil(utf8.len(TEXT["level editor"])/2)*8))*scale, 154*scale)
-			
-			if i == 9 then if mouseonselecthold and mouseonselect == 3 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end end
-			properprintfunc(TEXT["select mappack"], (143-(math.ceil(utf8.len(TEXT["select mappack"])/2)*8))*scale, 170*scale)
-			
-			if i == 9 then if mouseonselecthold and mouseonselect == 4 then love.graphics.setColor(188, 188, 188) else love.graphics.setColor(255, 255, 255) end end
-			properprintfunc(TEXT["options"], (143-(math.ceil(utf8.len(TEXT["options"])/2)*8))*scale, 186*scale)
-			
-			if i == 9 then love.graphics.setColor(255, 255, 255) end
-			
-			--if not (not disabletips and menutipoffset > -width*16) then
-				if not (custombackground or customforeground) or hudoutline then
-					love.graphics.setColor(0, 0, 0)
-					properprint("mod by alesan99", (width*16-#("mod by alesan99")*8-7)*scale, 209*scale) --a little less intrusive
-					love.graphics.setColor(255, 255, 255)
-				end
-				properprint("mod by alesan99", (width*16-#("mod by alesan99")*8-8)*scale, 208*scale) --a little less intrusive
-			--end
-			
-			love.graphics.translate(-tx, -ty)
-		end
+			properprint("mod by alesan99", (width*16-#("mod by alesan99")*8-8)*scale, 208*scale) --a little less intrusive
+		--end
 		
 		if players >= 1 then
 			love.graphics.draw(playerselectarrowimg, (138-(math.ceil((utf8.len(TEXT["player game"])+2)/2)*8))*scale, 138*scale, 0, scale, scale)
@@ -1945,12 +1916,14 @@ function loadmappacks()
 	mappackdescription = {}
 	mappackbackground = {}
 	mappackdropshadow = {}
+	mappacklives = {}
 	
 	mappacklist[#mappacklist+1] = "custom_mappack"
 	mappackname[#mappacklist] = TEXT["{new mappack}"]
 	mappackauthor[#mappacklist] = "you"
 	mappackdescription[#mappacklist] = TEXT["new mappack description"]
 	mappackdropshadow[#mappacklist] = false
+	mappacklives[#mappacklist] = 3
 	
 	--get the current cursorposition
 	for i = 1, #mappacklist do

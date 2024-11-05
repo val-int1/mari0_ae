@@ -935,6 +935,9 @@ emptytile = {1,gels={}}
 -- use getDefaultPortalColor(index) or getDefaultPortalColors() instead to get a copy of the color
 __defaultPortalColor = {{60, 188, 252}, {232, 130, 30}}
 
+-- hud element names (put here as it's used in multiple places)
+hudelemnames = {"playername", "playerlives", "points", "coins", "world", "time", "simple", "outline", "visible"}
+
 function getDefaultPortalColor(index)
 	color = __defaultPortalColor[index]
 	return {unpack(color)}

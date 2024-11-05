@@ -9,6 +9,7 @@ function loadmappacksettings(suspended)
 		if s2[1] == "lives" then
 			if not suspended then
 				mariolivecount = tonumber(s2[2])
+				if mariolivecount == 0 then mariolivecount = false end
 			end
 		elseif s2[1] == "physics" then
 			currentphysics = tonumber(s2[2]) or 1
@@ -88,6 +89,11 @@ function loadcustomtext()
 		else
 			lines = s:split("\n")
 		end
+
+		-- Work around to set the defaults without overriding custom ones
+		hudplayername = nil
+		hudworld = nil
+		local disablehud = false
 		
 		for i = 1, #lines do
 			local s2 = lines[i]:split("=")
@@ -124,13 +130,31 @@ function loadcustomtext()
 			elseif s3[1] == "hudcolorname" then
 				hudtextcolorname = s2[2]
 			elseif s3[1] == "hudvisible" then
-				hudvisible = (s2[2] == "true")
+				disablehud = not (s2[2] == "true")
 			elseif s3[1] == "hudworldletter" then
 				hudworldletter = (s2[2] == "true")
 			elseif s3[1] == "hudoutline" then
 				hudoutline = (s2[2] == "true")
 			elseif s3[1] == "hudsimple" then
 				hudsimple = (s2[2] == "true")
+				if hudplayername == nil then
+					hudplayername = not hudsimple
+				end
+				if hudworld == nil then
+					hudworld = not hudsimple
+				end
+			elseif s3[1] == "hudplayername" then
+				hudplayername = (s2[2] == "true")
+			elseif s3[1] == "hudplayerlives" then
+				hudplayerlives = (s2[2] == "true")
+			elseif s3[1] == "hudpoints" then
+				hudpoints = (s2[2] == "true")
+			elseif s3[1] == "hudcoins" then
+				hudcoins = (s2[2] == "true")
+			elseif s3[1] == "hudworld" then
+				hudworld = (s2[2] == "true")
+			elseif s3[1] == "hudtime" then
+				hudtime = (s2[2] == "true")
 			elseif s3[1] == "toadtext" then
 				local s4 = s2[2]:split(",")
 				
@@ -162,6 +186,17 @@ function loadcustomtext()
 				end
 			end
 		end
+
+		if disablehud then
+			for _, v in pairs(hudelemnames) do
+				if v ~= "visible" then
+					_G["hud" .. v] = false
+				end
+			end
+		end
+
+		if hudplayername == nil then hudplayername = not hudsimple end
+		if hudworld == nil then hudworld = not hudsimple end
 	else
 		defaultcustomtext()
 	end
@@ -175,19 +210,19 @@ function defaultcustomtext(initial)
 	peachtext = {"thank you mario!", "your quest is over.", "we present you a new quest.", "push button b", "to play as steve"}
 	levelscreentext = {}
 	pressbtosteve = true
-	if not initial then
-		if mariocharacter[1] and characters.data[mariocharacter[1]] then
-			playername = characters.data[mariocharacter[1]].name
-		else
-			playername = "mario"
-		end
-	end
+	playername = ""
 	hudtextcolor = {255, 255, 255}
 	hudtextcolorname = "white"
 	hudvisible = true
 	hudworldletter = false
 	hudoutline = false
 	hudsimple = false
+	hudplayername = true
+	hudplayerlives = false
+	hudpoints = true
+	hudcoins = true
+	hudworld = true
+	hudtime = true
 	hudhidecollectables = {false, false, false, false, false, false, false, false, false, false}
 end
 
@@ -206,6 +241,12 @@ function savecustomtext()
 	s = s .. "\r\nhudworldletter=" .. tostring(hudworldletter)
 	s = s .. "\r\nhudoutline=" .. tostring(hudoutline)
 	s = s .. "\r\nhudsimple=" .. tostring(hudsimple)
+	s = s .. "\r\nhudplayername=" .. tostring(hudplayername)
+	s = s .. "\r\nhudplayerlives=" .. tostring(hudplayerlives)
+	s = s .. "\r\nhudpoints=" .. tostring(hudpoints)
+	s = s .. "\r\nhudcoins=" .. tostring(hudcoins)
+	s = s .. "\r\nhudworld=" .. tostring(hudworld)
+	s = s .. "\r\nhudtime=" .. tostring(hudtime)
 	s = s .. "\r\ntoadtext=" .. guielements["edittoadtext1"].value .. "," .. guielements["edittoadtext2"].value .. "," .. guielements["edittoadtext3"].value
 	s = s .. "\r\npeachtext=" .. guielements["editpeachtext1"].value .. "," .. guielements["editpeachtext2"].value .. "," .. guielements["editpeachtext3"].value .. "," .. guielements["editpeachtext4"].value .. "," .. guielements["editpeachtext5"].value
 	s = s .. "\r\nsteve=" .. tostring(pressbtosteve)
