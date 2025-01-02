@@ -155,6 +155,20 @@ function loadcustomtext()
 				hudworld = (s2[2] == "true")
 			elseif s3[1] == "hudtime" then
 				hudtime = (s2[2] == "true")
+			elseif s3[1] == "levelscreenskip" then
+				levelscreenskip = (s2[2] == "true")
+			elseif s3[1] == "levelscreenworld" then
+				levelscreenworld = (s2[2] == "true")
+			elseif s3[1] == "levelscreenlives" then
+				levelscreenlives = (s2[2] == "true")
+			elseif s3[1] == "levelscreentextcolor" then
+				local s4 = s2[2]:split(",")
+
+				for j = 1, 3 do
+					levelscreentextcolor[j] = tonumber(s4[j])
+				end
+			elseif s3[1] == "levelscreentextcolorname" then
+				levelscreentextcolorname = s2[2]
 			elseif s3[1] == "toadtext" then
 				local s4 = s2[2]:split(",")
 				
@@ -223,6 +237,11 @@ function defaultcustomtext(initial)
 	hudcoins = true
 	hudworld = true
 	hudtime = true
+	levelscreenskip = false
+	levelscreenworld = true
+	levelscreenlives = true
+	levelscreentextcolor = {255, 255, 255}
+	levelscreentextcolorname = "white"
 	hudhidecollectables = {false, false, false, false, false, false, false, false, false, false}
 end
 
@@ -247,6 +266,13 @@ function savecustomtext()
 	s = s .. "\r\nhudcoins=" .. tostring(hudcoins)
 	s = s .. "\r\nhudworld=" .. tostring(hudworld)
 	s = s .. "\r\nhudtime=" .. tostring(hudtime)
+	s = s .. "\r\nlevelscreenskip=" .. tostring(levelscreenskip)
+	s = s .. "\r\nlevelscreenworld=" .. tostring(levelscreenworld)
+	s = s .. "\r\nlevelscreenlives=" .. tostring(levelscreenlives)
+	s = s .. "\r\n"
+	color = textcolors[textcolorls]
+	s = s .. string.format("levelscreentextcolor=%s, %s, %s", unpack(color))
+	s = s .. "\r\nlevelscreentextcolorname=" .. textcolorls
 	s = s .. "\r\ntoadtext=" .. guielements["edittoadtext1"].value .. "," .. guielements["edittoadtext2"].value .. "," .. guielements["edittoadtext3"].value
 	s = s .. "\r\npeachtext=" .. guielements["editpeachtext1"].value .. "," .. guielements["editpeachtext2"].value .. "," .. guielements["editpeachtext3"].value .. "," .. guielements["editpeachtext4"].value .. "," .. guielements["editpeachtext5"].value
 	s = s .. "\r\nsteve=" .. tostring(pressbtosteve)

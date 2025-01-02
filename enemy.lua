@@ -2710,7 +2710,6 @@ function enemy:globalcollide(a, b, c, d, dir)
 	if b.meltice and self.meltsice then
 		return true
 	end
-	
 
 	if self.transforms and (self:gettransformtrigger("globalcollide") or self:gettransformtrigger("collide")) and (not self.justspawned) then
 		if self:gettransformtrigger("globalcollide") then

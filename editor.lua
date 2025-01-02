@@ -360,6 +360,7 @@ function editor_load(player_position) --{x, y, xscroll, yscroll}
 	
 	textcolorl = endingtextcolorname
 	textcolorp = hudtextcolorname
+	textcolorls = levelscreentextcolorname
 	textstate = "hud"
 	
 	if oldhudstates then
@@ -411,6 +412,16 @@ function editor_load(player_position) --{x, y, xscroll, yscroll}
 	guielements["hudworldcheckbox"] = guielement:new("checkbox", 10, 153, togglehudworld, hudworld, TEXT["world on hud"])
 	guielements["hudtimecheckbox"] = guielement:new("checkbox", 10, 164, togglehudtime, hudtime, TEXT["time on hud"])
 	guielements["editlevelscreentext"] = guielement:new("input", 10, 81, 40, nil, levelscreentext[marioworld .. "-" .. mariolevel] or "", 45)
+	local s = TEXT["world "] .. marioworld .. "-" .. mariolevel
+	if mariosublevel ~= 0 then
+		s = s .. "-" .. mariosublevel
+	end
+	guielements["levelscreenskipcheckbox"] = guielement:new("checkbox", 160, 162, togglelevelscreenskip, levelscreenskip, TEXT["skip levelscreen"])
+	guielements["levelscreenworldcheckbox"] = guielement:new("checkbox", 10, 57, togglelevelscreenworld, levelscreenworld, s)
+	local x = 23 + utf8.len(s)*8
+	guielements["levelscreenlivescheckbox"] = guielement:new("checkbox", x, 57, togglelevelscreenlives, levelscreenlives, TEXT["show lives"])
+	guielements["levelscreencolor"] = guielement:new("dropdown", x + 95, 56, 7, changelevelscreentextcolor, tablecontainsi(textcolorsnames, textcolorls), unpack(textcolorsnames))
+	guielements["levelscreencolor"].coloredtext = true
 	hudtemplatebuttons = {
 		guielement:new("button", 0, 0, TEXT["simple hud"], sethudtosimple, 1),
 		guielement:new("button", 0, 0, TEXT["classic hud"], sethudtoclassic, 1),
@@ -3024,7 +3035,7 @@ function editor_draw()
 						guielements["hudplayerlivescheckbox"]:draw()
 					end
 					guielements["editplayername"]:draw()
-					properprintF(TEXT["(set to mario for char. name)"], 110*scale, 70*scale)
+					properprintF(TEXT["(set to mario for char's name)"], 110*scale, 70*scale)
 					--love.graphics.setColor(textcolors[textcolorp])
 					--properprintF(TEXT["color"], 23*scale, 86*scale)
 					--guielements["hudcolor<"]:draw()
@@ -3057,11 +3068,9 @@ function editor_draw()
 					guielements["stevecheckbox"]:draw()
 				elseif textstate == "levelscreen" then
 					love.graphics.setColor(255, 255, 255)
-					local sublev = ""
-					if mariosublevel ~= 0 then
-						sublev = "-" .. mariosublevel
-					end
-					properprintF(TEXT["level "] .. marioworld .. "-" .. mariolevel .. sublev, 11*scale, 57*scale)
+					guielements["levelscreenskipcheckbox"]:draw()
+					guielements["levelscreenworldcheckbox"]:draw()
+					guielements["levelscreenlivescheckbox"]:draw()
 					properprintF(TEXT["caption"], 11*scale, 70*scale)
 					guielements["editlevelscreentext"]:draw()
 					love.graphics.setColor(127, 127, 127)
@@ -3070,73 +3079,83 @@ function editor_draw()
 					love.graphics.setColor(255, 255, 255)
 					love.graphics.rectangle("fill", 11*scale, 110*scale, 144*scale, 82*scale)
 					properprintF(TEXT["preview"], 11*scale, 100*scale)
-					
+
 					-- levelscreen preview
 					love.graphics.setScissor(12*scale, 111*scale, 142*scale, 80*scale)
 					love.graphics.push()
 					love.graphics.translate(12*scale, 111*scale)
 					love.graphics.scale((80/224), (80/224))
-					
+
 					love.graphics.setColor(0, 0, 0)
 					love.graphics.rectangle("fill", 0, 0, 400*scale, 224*scale)
 					love.graphics.setColor(255, 255, 255)
-					
+
 					if levelscreenimage then
 						love.graphics.draw(levelscreenimage, 0, 0, 0, scale, scale)
 					end
-					
-					local world = marioworld
-					if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
-						world = alphabet:sub(world-9, world-9)
+
+					if levelscreenworld then
+						love.graphics.setColor(textcolors[textcolorls])
+						local world = marioworld
+						if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
+							world = alphabet:sub(world-9, world-9)
+						end
+						properprintF(TEXT["world "] .. world .. "-" .. mariolevel, (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
 					end
-					properprintF(TEXT["world "] .. world .. "-" .. mariolevel, (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
-					
-					--for i = 1, 1 do
-					local i = 1
-					local x = (width/2*16)*scale-29*scale
-					local y = (97 + (i-1)*20 - (players-1)*8)*scale
-					local v = characters.data[mariocharacter[i]]
-					
-					for j = 1, #characters.data[mariocharacter[i]]["animations"] do
-						love.graphics.setColor(mariocolors[i][j])
+
+					if levelscreenlives then
+						love.graphics.setColor(255, 255, 255)
+						--for i = 1, 1 do
+						local i = 1
+						local x = (width/2*16)*scale-29*scale
+						local y = (97 + (i-1)*20 - (players-1)*8)*scale
+						local v = characters.data[mariocharacter[i]]
+
+						for j = 1, #characters.data[mariocharacter[i]]["animations"] do
+							love.graphics.setColor(mariocolors[i][j])
+							if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
+								love.graphics.draw(v["animations"][j], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+							else
+								love.graphics.draw(v["animations"][j], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+							end
+						end
+
+						--hat
+
+						offsets = hatoffsets["idle"]
+						if #mariohats[i] > 1 or mariohats[i][1] ~= 1 then
+							local yadd = 0
+							for j = 1, #mariohats[i] do
+								love.graphics.setColor(255, 255, 255)
+								love.graphics.draw(hat[mariohats[i][j]].graphic, hat[mariohats[i][j]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][j]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][j]].y + offsets[2] + yadd)
+								yadd = yadd + hat[mariohats[i][j]].height
+							end
+						elseif #mariohats[i] == 1 then
+							love.graphics.setColor(mariocolors[i][1])
+							love.graphics.draw(hat[mariohats[i][1]].graphic, hat[mariohats[i][1]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][1]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][1]].y + offsets[2])
+						end
+
+						love.graphics.setColor(255, 255, 255, 255)
+
 						if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
-							 love.graphics.draw(v["animations"][j], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+							love.graphics.draw(v["animations"][0], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
 						else
-							love.graphics.draw(v["animations"][j], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+							love.graphics.draw(v["animations"][0], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
 						end
+
+						love.graphics.setColor(textcolors[textcolorls])
+						properprint("*  3", (width/2*16)*scale-8*scale, y+7*scale)
+						--end
 					end
-			
-					--hat
-					
-					offsets = hatoffsets["idle"]
-					if #mariohats[i] > 1 or mariohats[i][1] ~= 1 then
-						local yadd = 0
-						for j = 1, #mariohats[i] do
-							love.graphics.setColor(255, 255, 255)
-							love.graphics.draw(hat[mariohats[i][j]].graphic, hat[mariohats[i][j]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][j]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][j]].y + offsets[2] + yadd)
-							yadd = yadd + hat[mariohats[i][j]].height
-						end
-					elseif #mariohats[i] == 1 then
-						love.graphics.setColor(mariocolors[i][1])
-						love.graphics.draw(hat[mariohats[i][1]].graphic, hat[mariohats[i][1]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][1]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][1]].y + offsets[2])
-					end
-				
-					love.graphics.setColor(255, 255, 255, 255)
-					
-					if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
-						love.graphics.draw(v["animations"][0], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
-					else
-						love.graphics.draw(v["animations"][0], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
-					end
-					
-					properprint("*  3", (width/2*16)*scale-8*scale, y+7*scale)
-					--end
-					
+
+					love.graphics.setColor(textcolors[textcolorls])
 					local s = guielements["editlevelscreentext"].value
 					properprint(s, (width/2*16)*scale-string.len(s)*4*scale, 200*scale)
-					
+
 					love.graphics.pop()
 					love.graphics.setScissor()
+
+					guielements["levelscreencolor"]:draw()
 				end
 			elseif customtabstate == "enemies" then
 				love.graphics.setColor(255, 255, 255)
@@ -3694,6 +3713,10 @@ function texttabtab(t)
 		guielements["stevecheckbox"].active = true
 	elseif t == "levelscreen" then
 		guielements["levelscreentexttab"].textcolor = {255, 255, 255}
+		guielements["levelscreenskipcheckbox"].active = true
+		guielements["levelscreenworldcheckbox"].active = true
+		guielements["levelscreenlivescheckbox"].active = true
+		guielements["levelscreencolor"].active = true
 		guielements["editlevelscreentext"].active = true
 		--levelscreenimage
 		if levelscreenimagecheck ~= mappack .. "-" .. marioworld .. "-" .. mariolevel then
@@ -7292,6 +7315,35 @@ function sethudtooff()
 	togglehudcoins(false)
 	togglehudworld(false)
 	togglehudtime(false)
+end
+
+function togglelevelscreenskip(var)
+	if var ~= nil then
+		levelscreenskip = var
+	else
+		levelscreenskip = not levelscreenskip
+	end
+	guielements["levelscreenskipcheckbox"].var = levelscreenskip
+end
+function togglelevelscreenworld(var)
+	if var ~= nil then
+		levelscreenworld = var
+	else
+		levelscreenworld = not levelscreenworld
+	end
+	guielements["levelscreenworldcheckbox"].var = levelscreenworld
+end
+function togglelevelscreenlives(var)
+	if var ~= nil then
+		levelscreenlives = var
+	else
+		levelscreenlives = not levelscreenlives
+	end
+	guielements["levelscreenlivescheckbox"].var = levelscreenlives
+end
+function changelevelscreentextcolor(var)
+	textcolorls = textcolorsnames[var]
+	guielements["levelscreencolor"].var = var
 end
 
 function changebackground(var)

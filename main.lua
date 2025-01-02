@@ -1308,7 +1308,7 @@ function lovedraw()
 	love.graphics.push()
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "lobby" or gamestate == "options" then
 		menu_draw()
-	elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "mappackfinished" or gamestate == "dclevelscreen" then
+	elseif (gamestate == "levelscreen" and not levelscreenskip) or gamestate == "gameover" or gamestate == "mappackfinished" or gamestate == "dclevelscreen" then
 		levelscreen_draw()
 	elseif gamestate == "game" then
 		game_draw()

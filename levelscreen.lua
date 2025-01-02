@@ -45,7 +45,11 @@ function levelscreen_load(reason, i)
 		blacktime = 0.8
 	elseif livesleft then
 		gamestate = "levelscreen"
-		blacktime = levelscreentime
+		if levelscreenskip then
+			blacktime = sublevelscreentime
+		else
+			blacktime = levelscreentime
+		end
 		if reason == "next" or reason == "animation" then --next level
 			respawnsublevel = 0
 			checkpointx = nil
@@ -256,58 +260,66 @@ function levelscreen_draw()
 				love.graphics.draw(levelscreenimage, 0, 0, 0, scale, scale)
 			end
 			
-			local world = marioworld
-			if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
-				world = alphabet:sub(world-9, world-9)
-			elseif world == "M" then
-				world = " "
+			if levelscreenworld then
+				love.graphics.setColor(levelscreentextcolor)
+				local world = marioworld
+				if hudworldletter and tonumber(world) and world > 9 and world <= 9+#alphabet then
+					world = alphabet:sub(world-9, world-9)
+				elseif world == "M" then
+					world = " "
+				end
+				properprintfunc("world " .. world .. "-" .. mariolevel, (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
 			end
-			properprintfunc("world " .. world .. "-" .. mariolevel, (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
-			
-			for i = 1, players do
-				local x = (width/2*16)*scale-29*scale
-				local y = (97 + (i-1)*20 - (players-1)*8)*scale
-				local v = characters.data[mariocharacter[i]]
-				
-				for j = 1, #characters.data[mariocharacter[i]]["animations"] do
-					love.graphics.setColor(mariocolors[i][j])
+
+			if levelscreenlives then
+				for i = 1, players do
+					local x = (width/2*16)*scale-29*scale
+					local y = (97 + (i-1)*20 - (players-1)*8)*scale
+					local v = characters.data[mariocharacter[i]]
+
+					for j = 1, #characters.data[mariocharacter[i]]["animations"] do
+						love.graphics.setColor(mariocolors[i][j])
+						if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
+							love.graphics.draw(v["animations"][j], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+						else
+							love.graphics.draw(v["animations"][j], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+						end
+					end
+
+					--hat
+
+					offsets = customplayerhatoffsets(mariocharacter[i], "hatoffsets", "idle") or hatoffsets["idle"]
+					if #mariohats[i] > 1 or mariohats[i][1] ~= 1 then
+						local yadd = 0
+						for j = 1, #mariohats[i] do
+							love.graphics.setColor(255, 255, 255)
+							love.graphics.draw(hat[mariohats[i][j]].graphic, hat[mariohats[i][j]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][j]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][j]].y + offsets[2] + yadd)
+							yadd = yadd + hat[mariohats[i][j]].height
+						end
+					elseif #mariohats[i] == 1 then
+						love.graphics.setColor(mariocolors[i][1])
+						love.graphics.draw(hat[mariohats[i][1]].graphic, hat[mariohats[i][1]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][1]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][1]].y + offsets[2])
+					end
+
+					love.graphics.setColor(255, 255, 255, 255)
+
 					if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
-					 	love.graphics.draw(v["animations"][j], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+						love.graphics.draw(v["animations"][0], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
 					else
-						love.graphics.draw(v["animations"][j], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+						love.graphics.draw(v["animations"][0], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
+					end
+
+					love.graphics.setColor(levelscreentextcolor)
+					if mariolivecount == false then
+						properprintfunc("*  inf", (width/2*16)*scale-8*scale, y+7*scale)
+					else
+						properprintfunc("*  " .. mariolives[i], (width/2*16)*scale-8*scale, y+7*scale)
 					end
 				end
-		
-				--hat
-				
-				offsets = customplayerhatoffsets(mariocharacter[i], "hatoffsets", "idle") or hatoffsets["idle"]
-				if #mariohats[i] > 1 or mariohats[i][1] ~= 1 then
-					local yadd = 0
-					for j = 1, #mariohats[i] do
-						love.graphics.setColor(255, 255, 255)
-						love.graphics.draw(hat[mariohats[i][j]].graphic, hat[mariohats[i][j]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][j]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][j]].y + offsets[2] + yadd)
-						yadd = yadd + hat[mariohats[i][j]].height
-					end
-				elseif #mariohats[i] == 1 then
-					love.graphics.setColor(mariocolors[i][1])
-					love.graphics.draw(hat[mariohats[i][1]].graphic, hat[mariohats[i][1]].quad[1], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX - hat[mariohats[i][1]].x + offsets[1], v.smallquadcenterY - hat[mariohats[i][1]].y + offsets[2])
-				end
-			
-				love.graphics.setColor(255, 255, 255, 255)
-				
-				if playertype == "classic" or playertype == "cappy" or not portalgun then--no portal gun
-					love.graphics.draw(v["animations"][0], v["small"]["idle"][5], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
-				else
-					love.graphics.draw(v["animations"][0], v["small"]["idle"][3], x+(v.smalloffsetX)*scale, y+(11-v.smalloffsetY)*scale, 0, scale, scale, v.smallquadcenterX, v.smallquadcenterY)
-				end
-				
-				if mariolivecount == false then
-					properprintfunc("*  inf", (width/2*16)*scale-8*scale, y+7*scale)
-				else
-					properprintfunc("*  " .. mariolives[i], (width/2*16)*scale-8*scale, y+7*scale)
-				end
+			else
+				love.graphics.setColor(levelscreentextcolor)
 			end
-			
+
 			if mappack == "smb" and marioworld == 2 and mariolevel == 1 then
 				local s = "remember that you can run with "
 				for i = 1, #controls[1]["run"] do
@@ -339,13 +351,14 @@ function levelscreen_draw()
 				local s = levelscreentext[marioworld .. "-" .. mariolevel]
 				properprintbasicfunc(s, (width/2*16)*scale-string.len(s)*4*scale, 200*scale)
 			end
-			
+
+			love.graphics.setColor(255, 255, 255, 255)
 		elseif gamestate == "mappackfinished" then
 			if levelscreenimagecheck then
 				love.graphics.draw(levelscreenimage, 0, 0, 0, scale, scale)
 			end
 			love.graphics.setColor(endingtextcolor)
-			
+
 			properprintfunc(endingtext[1], width*8*scale-string.len(endingtext[1])*4*scale, 120*scale)
 			properprintfunc(endingtext[2], width*8*scale-string.len(endingtext[2])*4*scale, 140*scale)
 			love.graphics.setColor(255, 255, 255, 255)
